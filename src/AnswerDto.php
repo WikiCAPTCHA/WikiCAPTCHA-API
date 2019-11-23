@@ -7,6 +7,10 @@ class AnswerDto implements \JsonSerializable {
 	private $imgUrl;
 	private $text;
 
+	private function __consruct() {
+
+	}
+
 	public static function fromParts(string $imgUrl, string $text): AnswerDto {
 		$that = new AnswerDto();
 		$that->imgUrl = $imgUrl;

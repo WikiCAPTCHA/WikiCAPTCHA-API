@@ -3,7 +3,7 @@
 namespace Wikicaptcha\Backend;
 
 
-class WikiApiDto {
+class WikiApiDto implements \JsonSerializable {
 	protected $sessionId;
 	protected $questionList;
 
@@ -20,5 +20,12 @@ class WikiApiDto {
 		$that->sessionId = $sessionId;
 		$that->questionList = $questionList;
 		return $that;
+	}
+
+	public function jsonSerialize() {
+		$result = [];
+		$result['sessionId'] = $this->sessionId;
+		$result['questionList'] = $this->questionList;
+		return $result;
 	}
 }

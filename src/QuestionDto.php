@@ -12,6 +12,10 @@ class QuestionDto implements \JsonSerializable {
 		'OPTIONS' => 'OPTIONS'
 	];
 
+	private function __consruct() {
+
+	}
+
 	protected $questionText;
 	protected $questionId;
 	protected $questionType;

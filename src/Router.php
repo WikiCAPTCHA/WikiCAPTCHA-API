@@ -17,6 +17,7 @@ class Router implements MiddlewareInterface {
 				$r->get('/test', Test::class);
 				$r->post('/questions', Questions::class);
 				$r->put('/answers', Answers::class);
+				$r->addRoute(['OPTIONS'], '/{any}', Cors::class);
 			});
 
 		$route = $dispatcher->dispatch($request->getMethod(), $request->getUri()->getPath());

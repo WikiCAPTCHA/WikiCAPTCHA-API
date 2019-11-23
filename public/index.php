@@ -11,6 +11,8 @@ require __DIR__ . DIRECTORY_SEPARATOR .  '..' . DIRECTORY_SEPARATOR . 'vendor' .
 
 $request = ServerRequestFactory::fromGlobals();
 
+header("Access-Control-Allow-Origin: *");
+
 $response = (new Wikicaptcha\Backend\Controller())->handle($request);
 
 (new SapiEmitter())->emit($response);

@@ -14,7 +14,8 @@ class Router implements MiddlewareInterface {
 		$dispatcher = \FastRoute\simpleDispatcher(
 			function(\FastRoute\RouteCollector $r) {
 				$r->get('/test', Test::class);
-				$r->get('/whatever', '');
+				$r->post('/questions', Questions::class);
+				$r->put('/answers', '');
 			});
 
 		$route = $dispatcher->dispatch($request->getMethod(), $request->getUri()->getPath());

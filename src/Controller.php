@@ -13,6 +13,7 @@ class Controller implements RequestHandlerInterface {
 		$queue = [
 			new ErrorHandler(),
 			new Router(),
+			new EnsureJson(),
 			new DatabaseConnection(),
 			new DoWork(),
 		];

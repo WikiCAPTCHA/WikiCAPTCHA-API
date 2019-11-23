@@ -2,21 +2,25 @@
 namespace Wikicaptcha\Backend;
 
 
-class UserAnswerDto extends AnswerDto {
+class UserAnswerDto {
 	private function __consruct() {
 
 	}
 
-	public static function fromArray(array $array): AnswerDto {
-		$userAnswerDto = parent::fromArray($array);
+	public static function fromArray(array $array): UserAnswerDto {
+		$that = new UserAnswerDto();
 		foreach($array as $k => $v) {
-			$userAnswerDto->$k = $v;
+			$that->$k = $v;
 		}
-		return $userAnswerDto;
+		return $that;
+	}
+
+	public static function fromParts(): UserAnswerDto {
+		return new UserAnswerDto();
 	}
 
 	public function jsonSerialize() {
-		$result = parent::jsonSerialize();
+		$result = [];
 		foreach($this as $k => $v) {
 			$result[$k] = $v;
 		}

@@ -13,6 +13,7 @@ class Router implements MiddlewareInterface {
 	public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
 		$dispatcher = \FastRoute\simpleDispatcher(
 			function(\FastRoute\RouteCollector $r) {
+				$r->get('/', Index::class);
 				$r->get('/test', Test::class);
 				$r->post('/questions', Questions::class);
 				$r->put('/answers', Answers::class);

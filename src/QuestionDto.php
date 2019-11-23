@@ -51,7 +51,7 @@ class QuestionDto implements \JsonSerializable {
 		foreach($array['answersAvailable'] as $el) {
 			$a[] = AnswerDto::fromArray($el);
 		}
-		return self::fromParts($array['id'], $array['text'], $array['type'], $a);
+		return self::fromParts($array['questionId'], $array['questionText'], $array['questionType'], $a);
 	}
 
 

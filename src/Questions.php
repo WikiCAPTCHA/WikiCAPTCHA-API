@@ -67,6 +67,8 @@ LIMIT ?
 ');
 				$imageRows->execute([$challenge['challenge_ID'], $actual]);
 				foreach($imageRows->fetchAll() as $image) {
+					// $filename = array_reverse(explode('/', $image['image_src']))[0];
+					// $answers[] = AnswerDto::fromParts($image['image_src'] . '/' . "/200px-$filename", (string) $image['image_ID']);
 					$answers[] = AnswerDto::fromParts($image['image_src'], (string) $image['image_ID']);
 					$already[] = $image['image_ID'];
 				}

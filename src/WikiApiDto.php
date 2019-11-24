@@ -28,4 +28,18 @@ class WikiApiDto implements \JsonSerializable {
 		$result['questionList'] = $this->questionList;
 		return $result;
 	}
+
+	/**
+	 * @return QuestionDto[]
+	 */
+	public function getQuestionList() {
+		return $this->questionList;
+	}
+
+	/**
+	 * @return int
+	 */
+	public function getSessionId() {
+		return $this->sessionId;
+	}
 }

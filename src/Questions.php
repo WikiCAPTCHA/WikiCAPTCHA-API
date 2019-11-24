@@ -61,19 +61,22 @@ FROM         wcaptcha_challenge_connotation
 NATURAL JOIN wcaptcha_image_connotation
 NATURAL JOIN wcaptcha_image
 WHERE wcaptcha_challenge_connotation.challenge_ID = ?
-AND (image_src LIKE "%.jpg" OR image_src LIKE "%.jpeg" OR image_src LIKE "%.png" OR image_src LIKE "%.gif")
 GROUP BY image_ID, image_src
 ORDER BY COUNT(*) DESC
 LIMIT ?
 ');
 				$imageRows->execute([$challenge['challenge_ID'], $actual]);
 				foreach($imageRows->fetchAll() as $image) {
-					$answers[] = AnswerDto::fromParts($image['image_src'], 'No text for you');
+					$answers[] = AnswerDto::fromParts($image['image_src'], (string) $image['image_ID']);
 					$already[] = $image['image_ID'];
 				}
 
 				$actual = count($already);
 				$random = $total - $actual;
+
+				if($actual <= 0) {
+					throw new \LogicException('No answers for challenge ' . $challenge['challenge_ID']);
+				}
 
 				// Random images
 
@@ -87,7 +90,6 @@ LIMIT ?
 SELECT image_ID, image_src
 FROM wcaptcha_image
 WHERE image_ID NOT IN (' . implode(', ', $questionMarks) .')
-AND (image_src LIKE "%.jpg" OR image_src LIKE "%.jpeg" OR image_src LIKE "%.png" OR image_src LIKE "%.gif")
 ORDER BY RAND()
 LIMIT ?';
 				$params = array_merge($already, [$random]);

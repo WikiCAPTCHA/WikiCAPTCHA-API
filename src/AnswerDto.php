@@ -8,6 +8,27 @@ class AnswerDto implements \JsonSerializable {
 	private $text;
 	private $userAnswer;
 
+	/**
+	 * @return UserAnswerDto
+	 */
+	public function getUserAnswer() {
+		return $this->userAnswer;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getImgUrl() {
+		return $this->imgUrl;
+	}
+
+	/**
+	 * @return string
+	 */
+	public function getText() {
+		return $this->text;
+	}
+
 	private function __consruct() {
 
 	}

@@ -12,6 +12,20 @@ class QuestionDto implements \JsonSerializable {
 		'OPTIONS' => 'OPTIONS'
 	];
 
+	/**
+	 * @return AnswerDto[]
+	 */
+	public function getAnswersAvailable() {
+		return $this->answersAvailable;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getQuestionId() {
+		return $this->questionId;
+	}
+
 	private function __consruct() {
 
 	}

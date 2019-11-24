@@ -61,6 +61,7 @@ FROM         wcaptcha_challenge_connotation
 NATURAL JOIN wcaptcha_image_connotation
 NATURAL JOIN wcaptcha_image
 WHERE wcaptcha_challenge_connotation.challenge_ID = ?
+AND (image_src LIKE "%.jpg" OR image_src LIKE "%.jpeg" OR image_src LIKE "%.png" OR image_src LIKE "%.gif" OR image_src LIKE "%.tif"  OR image_src LIKE "%.tiff")
 GROUP BY image_ID, image_src
 ORDER BY COUNT(*) DESC
 LIMIT ?
@@ -86,6 +87,7 @@ LIMIT ?
 SELECT image_ID, image_src
 FROM wcaptcha_image
 WHERE image_ID NOT IN (' . implode(', ', $questionMarks) .')
+AND (image_src LIKE "%.jpg" OR image_src LIKE "%.jpeg" OR image_src LIKE "%.png" OR image_src LIKE "%.gif" OR image_src LIKE "%.tif"  OR image_src LIKE "%.tiff")
 ORDER BY RAND()
 LIMIT ?';
 				$params = array_merge($already, [$random]);

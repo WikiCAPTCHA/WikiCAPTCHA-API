@@ -3,7 +3,7 @@
 namespace Wikicaptcha\Backend;
 
 
-use http\Exception\InvalidArgumentException;
+use \InvalidArgumentException;
 
 class QuestionDto implements \JsonSerializable {
 	const QUESTION_TYPES = [

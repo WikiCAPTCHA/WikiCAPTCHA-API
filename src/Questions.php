@@ -16,22 +16,91 @@ class Questions implements RequestHandlerInterface {
 		if(!isset($payload['language'])) {
 			return new JsonResponse(['error' => 'Add language to request'], 400);
 		}
+		if(!isset($payload['appid'])) {
+			return new JsonResponse(['error' => 'Add appid to request'], 400);
+		}
 
-		// TODO: query database
-		$id = 123;
+		$pdo = (new Database())->getPdo();
+		$pdo->beginTransaction();
+
+		$ip = inet_pton($_SERVER['REMOTE_ADDR']);
+		$s = $pdo->prepare('INSERT INTO wcaptcha_session(session_ip, app_id) VALUES (?, ?)');
+		$s->execute([$ip, (int) $payload['appid']]);
+		$id = $pdo->lastInsertId();
+
+		$pdo->commit();
+
 		$questions = [];
-		for($i = 0; $i < 3; $i++) {
+		$challengeRows = $pdo->query('SELECT challenge_ID, challenge_type, challenge_text FROM wcaptcha_challenge ORDER BY RAND() LIMIT 2');
+		$total = 9;
+		$actual = mt_rand(2, 8);
+		foreach($challengeRows as $challenge) {
+			switch($challenge['challenge_type']) {
+				case 'img':
+					$type = QuestionDto::QUESTION_TYPES['IMG'];
+					break;
+				case 'text':
+				default:
+					$type = QuestionDto::QUESTION_TYPES['INPUT'];
+					break;
+				case 'option':
+					$type = QuestionDto::QUESTION_TYPES['OPTIONS'];
+					break;
+			}
+
 			$answers = [];
-			$answers[0] = AnswerDto::fromParts('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/George-W-Bush.jpeg/440px-George-W-Bush.jpeg', 'This is some text');
-			$answers[1] = AnswerDto::fromParts('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/George-W-Bush.jpeg/440px-George-W-Bush.jpeg', 'This is some text');
-			$answers[2] = AnswerDto::fromParts('https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/George-W-Bush.jpeg/440px-George-W-Bush.jpeg', 'This is some text');
-			$answers[3] = AnswerDto::fromParts('https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/President_Barack_Obama.jpg/440px-President_Barack_Obama.jpg', 'This is some text');
-			$answers[4] = AnswerDto::fromParts('https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/440px-Donald_Trump_official_portrait.jpg', 'This is some text');
-			$answers[5] = AnswerDto::fromParts('https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/440px-Donald_Trump_official_portrait.jpg', 'This is some text');
-			$answers[6] = AnswerDto::fromParts('https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/440px-Donald_Trump_official_portrait.jpg', 'This is some text');
-			$answers[7] = AnswerDto::fromParts('https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/440px-Donald_Trump_official_portrait.jpg', 'This is some text');
-			$answers[8] = AnswerDto::fromParts('https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/440px-Donald_Trump_official_portrait.jpg', 'This is some text');
-			$questions[$i] = QuestionDto::fromParts('q' . mt_rand(100, 999), 'Which one of these persons is Barack Obama?', QuestionDto::QUESTION_TYPES['IMG'], $answers);
+			$already = [];
+
+			if($type === QuestionDto::QUESTION_TYPES['IMG']) {
+
+				// Actual images
+
+				$imageRows = $pdo->prepare('
+SELECT image_ID, image_src
+FROM         wcaptcha_challenge_connotation
+NATURAL JOIN wcaptcha_image_connotation
+NATURAL JOIN wcaptcha_image
+WHERE wcaptcha_challenge_connotation.challenge_ID = ?
+GROUP BY image_ID, image_src
+ORDER BY COUNT(*) DESC
+LIMIT ?
+');
+				$imageRows->execute([$challenge['challenge_ID'], $actual]);
+				foreach($imageRows->fetchAll() as $image) {
+					$answers[] = AnswerDto::fromParts($image['image_src'], 'No text for you');
+					$already[] = $image['image_ID'];
+				}
+
+				$actual = count($already);
+				$random = $total - $actual;
+
+				// Random images
+
+				$questionMarks = [];
+				foreach($already as $ignored) {
+					$questionMarks[] = '?';
+				}
+				unset($ignored);
+
+				$stmt = '
+SELECT image_ID, image_src
+FROM wcaptcha_image
+WHERE image_ID NOT IN (' . implode(', ', $questionMarks) .')
+ORDER BY RAND()
+LIMIT ?';
+				$params = array_merge($already, [$random]);
+
+				$imageRows2 = $pdo->prepare($stmt);
+				$imageRows2->execute($params);
+				foreach($imageRows2->fetchAll() as $image) {
+					$answers[] = AnswerDto::fromParts($image['image_src'], 'No text for you');
+				}
+			} else {
+				throw new \LogicException('Not implemented');
+			}
+
+			shuffle($answers);
+			$questions[] = QuestionDto::fromParts($challenge['challenge_ID'], $challenge['challenge_text'], $type, $answers);
 		}
 
 		return new JsonResponse(WikiApiDto::fromParts($id, $questions), 200);

@@ -3,7 +3,7 @@
 namespace Wikicaptcha\Backend;
 
 
-use http\Exception\InvalidArgumentException;
+use \InvalidArgumentException;
 
 class QuestionDto implements \JsonSerializable {
 	const QUESTION_TYPES = [
@@ -11,6 +11,20 @@ class QuestionDto implements \JsonSerializable {
 		'INPUT' => 'INPUT',  // free text
 		'OPTIONS' => 'OPTIONS'
 	];
+
+	/**
+	 * @return AnswerDto[]
+	 */
+	public function getAnswersAvailable() {
+		return $this->answersAvailable;
+	}
+
+	/**
+	 * @return mixed
+	 */
+	public function getQuestionId() {
+		return $this->questionId;
+	}
 
 	private function __consruct() {
 
